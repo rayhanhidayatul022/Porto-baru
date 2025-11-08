@@ -93,21 +93,23 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ========================================
-// PARALLAX EFFECT FOR IMAGES ONLY
+// PARALLAX EFFECT FOR IMAGES ONLY (Disabled on mobile)
 // ========================================
-window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
-    const profilePhoto = document.querySelector('.profile-photo');
-    const sapaanCharacter = document.querySelector('.sapaan-character');
-    
-    if (profilePhoto) {
-        profilePhoto.style.transform = `translateY(${scrolled * 0.1}px)`;
-    }
-    
-    if (sapaanCharacter) {
-        sapaanCharacter.style.transform = `translateY(${scrolled * 0.05}px) rotate(${scrolled * 0.02}deg)`;
-    }
-});
+if (window.innerWidth > 768) {
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const profilePhoto = document.querySelector('.profile-photo');
+        const sapaanCharacter = document.querySelector('.sapaan-character');
+        
+        if (profilePhoto) {
+            profilePhoto.style.transform = `translateY(${scrolled * 0.1}px)`;
+        }
+        
+        if (sapaanCharacter) {
+            sapaanCharacter.style.transform = `translateY(${scrolled * 0.05}px) rotate(${scrolled * 0.02}deg)`;
+        }
+    });
+}
 
 // ========================================
 // TYPING EFFECT DISABLED - Causes HTML rendering issues
@@ -193,7 +195,12 @@ function animateCounter(element, target, duration = 2000) {
 // MOBILE MENU TOGGLE
 // ========================================
 const navMenu = document.querySelector('nav ul');
+let mobileMenuBtn = null;
+
 const createMobileMenuBtn = () => {
+    // Check if button already exists
+    if (document.querySelector('.mobile-menu-btn')) return;
+    
     const menuBtn = document.createElement('button');
     menuBtn.className = 'mobile-menu-btn';
     menuBtn.innerHTML = `
@@ -202,18 +209,68 @@ const createMobileMenuBtn = () => {
         <span></span>
     `;
     
-    menuBtn.addEventListener('click', () => {
+    menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         menuBtn.classList.toggle('active');
         navMenu.classList.toggle('mobile-active');
+        
+        // Prevent body scroll when menu is open on mobile
+        if (navMenu.classList.contains('mobile-active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
     });
     
     document.querySelector('nav').prepend(menuBtn);
+    mobileMenuBtn = menuBtn;
 };
 
-// Initialize mobile menu on smaller screens
-if (window.innerWidth <= 768) {
-    createMobileMenuBtn();
-}
+const removeMobileMenuBtn = () => {
+    const existingBtn = document.querySelector('.mobile-menu-btn');
+    if (existingBtn) {
+        existingBtn.remove();
+        navMenu.classList.remove('mobile-active');
+        mobileMenuBtn = null;
+    }
+};
+
+// Close mobile menu when clicking on a link
+navMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+        if (mobileMenuBtn) {
+            mobileMenuBtn.classList.remove('active');
+            navMenu.classList.remove('mobile-active');
+            document.body.style.overflow = '';
+        }
+    });
+});
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (mobileMenuBtn && 
+        !e.target.closest('nav') && 
+        navMenu.classList.contains('mobile-active')) {
+        mobileMenuBtn.classList.remove('active');
+        navMenu.classList.remove('mobile-active');
+        document.body.style.overflow = '';
+    }
+});
+
+// Initialize mobile menu on load and resize
+const handleResize = () => {
+    if (window.innerWidth <= 768) {
+        createMobileMenuBtn();
+    } else {
+        removeMobileMenuBtn();
+    }
+};
+
+// Initialize on load
+handleResize();
+
+// Handle window resize
+window.addEventListener('resize', handleResize);
 
 // ========================================
 // SMOOTH ENTRANCE ANIMATIONS
