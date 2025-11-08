@@ -199,31 +199,79 @@ let mobileMenuBtn = null;
 
 const createMobileMenuBtn = () => {
     // Check if button already exists
-    if (document.querySelector('.mobile-menu-btn')) return;
+    if (document.querySelector('.mobile-menu-btn')) {
+        console.log('Mobile menu button already exists');
+        return;
+    }
     
+    console.log('Creating mobile menu button...');
     const menuBtn = document.createElement('button');
     menuBtn.className = 'mobile-menu-btn';
+    menuBtn.setAttribute('type', 'button');
+    menuBtn.setAttribute('aria-label', 'Toggle menu');
+    menuBtn.setAttribute('aria-expanded', 'false');
     menuBtn.innerHTML = `
         <span></span>
         <span></span>
         <span></span>
     `;
     
+    console.log('Mobile menu button created:', menuBtn);
+    
     menuBtn.addEventListener('click', (e) => {
+        console.log('🔥 MENU BUTTON CLICKED!', e);
+        e.preventDefault();
         e.stopPropagation();
-        menuBtn.classList.toggle('active');
+        const isActive = menuBtn.classList.toggle('active');
         navMenu.classList.toggle('mobile-active');
         
+        console.log('Menu active:', isActive);
+        console.log('Nav menu classes:', navMenu.classList);
+        
+        // Update aria-expanded
+        menuBtn.setAttribute('aria-expanded', isActive);
+        
         // Prevent body scroll when menu is open on mobile
+        if (navMenu.classList.contains('mobile-active')) {
+            document.body.style.overflow = 'hidden';
+            console.log('Menu opened, body scroll disabled');
+        } else {
+            document.body.style.overflow = '';
+            console.log('Menu closed, body scroll enabled');
+        }
+    });
+    
+    // iOS specific: add touchstart event for better responsiveness
+    menuBtn.addEventListener('touchstart', (e) => {
+        console.log('👆 Touch start detected');
+        e.currentTarget.style.opacity = '0.7';
+    });
+    
+    menuBtn.addEventListener('touchend', (e) => {
+        console.log('👆 Touch end detected');
+        e.currentTarget.style.opacity = '1';
+    });
+    
+    // Alternative click handler for iOS
+    menuBtn.addEventListener('touchend', (e) => {
+        console.log('🔥 TOUCHEND CLICK!');
+        e.preventDefault();
+        const isActive = menuBtn.classList.toggle('active');
+        navMenu.classList.toggle('mobile-active');
+        menuBtn.setAttribute('aria-expanded', isActive);
+        
         if (navMenu.classList.contains('mobile-active')) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = '';
         }
-    });
+    }, { once: false });
     
-    document.querySelector('nav').prepend(menuBtn);
+    const nav = document.querySelector('nav');
+    console.log('Nav element:', nav);
+    nav.prepend(menuBtn);
     mobileMenuBtn = menuBtn;
+    console.log('Mobile menu button added to nav!');
 };
 
 const removeMobileMenuBtn = () => {
@@ -259,18 +307,29 @@ document.addEventListener('click', (e) => {
 
 // Initialize mobile menu on load and resize
 const handleResize = () => {
+    console.log('Window width:', window.innerWidth);
     if (window.innerWidth <= 768) {
+        console.log('Mobile view detected, creating menu button...');
         createMobileMenuBtn();
     } else {
+        console.log('Desktop view, removing menu button...');
         removeMobileMenuBtn();
+        document.body.style.overflow = ''; // Ensure body scroll is enabled
     }
 };
 
 // Initialize on load
+console.log('Initializing mobile menu...');
 handleResize();
 
-// Handle window resize
-window.addEventListener('resize', handleResize);
+// Handle window resize with debounce
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        handleResize();
+    }, 250);
+});
 
 // ========================================
 // SMOOTH ENTRANCE ANIMATIONS
