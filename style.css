@@ -921,7 +921,7 @@ nav a.active {
     }
 
     .judul-section {
-        font-size: 12px !important;
+        font-size: 28px !important;
         line-height: 1.2;
         padding: 0 15px;
         margin-bottom: 15px;
@@ -937,11 +937,11 @@ nav a.active {
     }
 
     .highlight {
-        font-size: 12px !important;
+        font-size: 28px !important;
     }
 
     .section-subtitle {
-        font-size: 12px;
+        font-size: 20px;
         padding: 0 20px;
         margin-bottom: 25px;
         text-align: center;
@@ -1259,7 +1259,7 @@ nav a.active {
     }
 
     .contact-section .judul-section {
-        font-size: 12px !important;
+        font-size: 28px !important;
         line-height: 1.3;
         margin-bottom: 10px;
         padding: 0 10px;
@@ -1268,7 +1268,7 @@ nav a.active {
     }
 
     .section-subtitle {
-        font-size: 10px !important;
+        font-size: 18px !important;
         padding: 0 10px;
         margin-bottom: 30px;
         line-height: 1.5;
